@@ -8,9 +8,10 @@
 <script>
 // Wait for the face-api.js library to load
 Promise.all([
-  faceapi.nets.tinyFaceDetector.loadFromUri('models'),
-  faceapi.nets.faceLandmark68Net.loadFromUri('models'),
-  faceapi.nets.faceRecognitionNet.loadFromUri('models')
+  faceapi.nets.tinyFaceDetector.loadFromUri('models/'),
+  faceapi.nets.faceLandmark68Net.loadFromUri('models/'),
+  faceapi.nets.faceRecognitionNet.loadFromUri('models/'),
+  faceapi.nets.ssdMobilenetv1.loadFromUri('models/')
 ]).then(startFaceDetection).catch(function(error) {
   console.error("Failed to load face-api.js models:", error);
 });
@@ -37,7 +38,7 @@ function startFaceDetection() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Detect faces
-      faceapi.detectAllFaces(video)
+      faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
         .then(function(faces) {
           // Loop through the detected faces and draw bounding boxes
           faces.forEach(function(face) {
