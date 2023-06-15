@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Face Detection</title>
+</head>
+<body>
+<script src="face-api.min.js"></script>
+<script>
+// Wait for the face-api.js library to load
+Promise.all([
+  faceapi.nets.tinyFaceDetector.loadFromUri('models'),
+  faceapi.nets.faceLandmark68Net.loadFromUri('models'),
+  faceapi.nets.faceRecognitionNet.loadFromUri('models')
+]).then(startFaceDetection).catch(function(error) {
+  console.error("Failed to load face-api.js models:", error);
+});
+
+function startFaceDetection() {
+  // Get video element and canvas
+  var video = document.getElementById("video");
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+
+  // Start video stream
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+      video.srcObject = stream;
+    })
+    .catch(function(error) {
+      console.error("Error accessing webcam:", error);
+    });
+
+  // Detect faces in the video stream
+  video.addEventListener("play", function() {
+    setInterval(function() {
+      // Clear previous drawings
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Detect faces
+      faceapi.detectAllFaces(video)
+        .then(function(faces) {
+          // Loop through the detected faces and draw bounding boxes
+          faces.forEach(function(face) {
+            var box = face.box;
+            ctx.beginPath();
+            ctx.lineWidth = "2";
+            ctx.strokeStyle = "red";
+            ctx.rect(box.x, box.y, box.width, box.height);
+            ctx.stroke();
+          });
+        })
+        .catch(function(error) {
+          console.error("Error detecting faces:", error);
+        });
+    }, 100);
+  });
+}
+</script>
+<video id="video" width="640" height="480" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+</body>
+</html>
